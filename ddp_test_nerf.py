@@ -5,7 +5,7 @@ import torch.multiprocessing
 import numpy as np
 import os
 import time
-from dataset.dataloader import load_data_split
+from dataset.dataloader import load_data_split, load_data_split_scannet
 from utils import mse2psnr, colorize_np, to8b
 import imageio
 from ddp_train_nerf import config_parser, setup_logger, setup, cleanup, render_single_image, create_nerf
@@ -17,7 +17,13 @@ logger = logging.getLogger(__package__)
 
 def ddp_test_nerf(rank, args):
     ###### set up multi-processing
-    setup(rank, args.world_size)
+    port = "480"
+    import random
+    a = str(random.randint(0,9))
+    b = str(random.randint(0,9))
+    port += a
+    port += b
+    setup(rank, args.world_size, port)
     ###### set up logger
     logger = logging.getLogger(__package__)
     setup_logger(args, "test")
@@ -44,7 +50,12 @@ def ddp_test_nerf(rank, args):
             os.makedirs(out_dir, exist_ok=True)
 
         ###### load data and create ray samplers; each process should do this
-        ray_samplers = load_data_split(args.datadir, args.scene, split, try_load_min_depth=args.load_min_depth)
+
+        if args.scene == "scene0291_00":
+            ray_samplers = load_data_split_scannet(args.datadir, args.scene, style_dir=args.style_dir, mode="test",
+                                                   try_load_min_depth=args.load_min_depth, seed=777)
+        else:
+            ray_samplers = load_data_split(args.datadir, args.scene, split, try_load_min_depth=args.load_min_depth)
         for idx in range(len(ray_samplers)):
             ### each process should do this; but only main process merges the results
             fname = '{:06d}.png'.format(idx)
@@ -107,10 +118,15 @@ def test():
     if args.world_size == -1:
         args.world_size = torch.cuda.device_count()
         logger.info('Using # gpus: {}'.format(args.world_size))
-    torch.multiprocessing.spawn(ddp_test_nerf,
-                                args=(args,),
-                                nprocs=args.world_size,
-                                join=True)
+
+    os.environ["MASTER_PORT"] = "27055"
+
+    #torch.multiprocessing.spawn(ddp_test_nerf,
+    #                            args=(args,),
+    #                            nprocs=args.world_size,
+    #                            join=True)
+
+    ddp_test_nerf(0, args)
 
 
 if __name__ == '__main__':

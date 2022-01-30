@@ -145,6 +145,8 @@ def load_data_split_scannet(basedir, scene, style_dir, mode="train", try_load_mi
     indxs = [i for i in range(cam_cnt)]
     if mode == "train":
         indxs = np.delete(indxs, np.arange(0, len(indxs), 10))
+    elif mode == "test":
+        indxs = indxs
     else:
         indxs = indxs[::10]
 

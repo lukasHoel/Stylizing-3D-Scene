@@ -283,11 +283,11 @@ def log_view_to_tb(writer, global_step, log_data, gt_img, style_img, mask, prefi
         writer.add_image(prefix + 'level_{}/bg_lambda'.format(m), bg_lambda_im, global_step)
 
 
-def setup(rank, world_size):
+def setup(rank, world_size, port=None):
     os.environ['MASTER_ADDR'] = 'localhost'
     # port = np.random.randint(12355, 12399)
     # os.environ['MASTER_PORT'] = '{}'.format(port)
-    os.environ['MASTER_PORT'] = "12357"
+    os.environ['MASTER_PORT'] = "12357" if not port else port
     # initialize the process group
     torch.distributed.init_process_group("gloo", rank=rank, world_size=world_size)
 
