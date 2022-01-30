@@ -8,7 +8,7 @@ import os
 from collections import OrderedDict
 from model.model import StyleNeRFpp
 import time
-from dataset.dataloader import load_data_split
+from dataset.dataloader import load_data_split, load_data_split_scannet
 import numpy as np
 from tensorboardX import SummaryWriter
 from utils import *
@@ -355,7 +355,7 @@ def create_nerf(rank, args):
             
             optim = torch.optim.Adam(filter(lambda p: p.requires_grad, models['net_{}'.format(m)].parameters()), lr=args.lrate)
             models['optim_{}'.format(m)] = optim
-    
+
     # Resume
     if len(ckpts) > 0 and not args.no_reload:
         fpath = ckpts[-1]
@@ -367,7 +367,7 @@ def create_nerf(rank, args):
         for m in range(models['cascade_level']):
             for name in ['net_{}'.format(m), 'optim_{}'.format(m)]:
                  models[name].load_state_dict(to_load[name])
-    
+
     return start, models
 
 
@@ -411,10 +411,16 @@ def ddp_train_nerf(rank, args):
 
     torch.distributed.barrier()
 
-    ray_samplers = load_data_split(args.datadir, args.scene, split='train',
-                                   try_load_min_depth=args.load_min_depth, seed=777)
-    val_ray_samplers = load_data_split(args.datadir, args.scene, split='validation',
-                                       try_load_min_depth=args.load_min_depth)
+    if args.scene == "scene0291_00":
+        ray_samplers = load_data_split_scannet(args.datadir, args.scene, style_dir=args.style_dir,
+                                       try_load_min_depth=args.load_min_depth, seed=777)
+        val_ray_samplers = load_data_split_scannet(args.datadir, args.scene, style_dir=args.style_dir, mode="validation",
+                                       try_load_min_depth=args.load_min_depth, seed=777)
+    else:
+        ray_samplers = load_data_split(args.datadir, args.scene, split='train',
+                                       try_load_min_depth=args.load_min_depth, seed=777)
+        val_ray_samplers = load_data_split(args.datadir, args.scene, split='validation',
+                                           try_load_min_depth=args.load_min_depth)
                                        
 
     # write training image names for autoexposure
@@ -587,6 +593,7 @@ def config_parser():
     parser.add_argument('--config', is_config_file=True, help='config file path')
     parser.add_argument("--expname", type=str, help='experiment name')
     parser.add_argument("--basedir", type=str, default='./logs/', help='where to store ckpts and logs')
+    parser.add_argument("--style_dir", type=str, default=None, help='style image dirs')
     # dataset options
     parser.add_argument("--datadir", type=str, default=None, help='input data directory')
     parser.add_argument("--scene", type=str, default=None, help='scene name')
