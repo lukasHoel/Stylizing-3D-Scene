@@ -1,14 +1,12 @@
 ### INPUT
-#N_style = 1
-stage = second
+stage = first
 datadir = /cluster/balrog/lhoellein/scannet/train/images
-first_stage_weight = /cluster/balrog/lhoellein/runs/stylemesh_rebuttal_runs/stylizing_3d_scene/scene0291_00_first_stage_0.1scale/model_085000.pth
 scene = scene0291_00
-expname = scene0291_00_second_stage_0.1scale_1style_fullstyleloss_085first_v2
-style_dir = /cluster/balrog/lhoellein/styles/mosaic
+expname = scene0291_00_first_stage_0.1scale
+style_dir = /cluster/balrog/lhoellein/styles/custom_21styles
 basedir = /cluster/balrog/lhoellein/runs/stylemesh_rebuttal_runs/stylizing_3d_scene
 config = None
-ckpt_path = None
+ckpt_path = /cluster/balrog/lhoellein/runs/stylemesh_rebuttal_runs/stylizing_3d_scene/scene0291_00_first_stage_0.1scale/model_085000.pth
 no_reload = False
 testskip = 1
 

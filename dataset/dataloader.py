@@ -77,6 +77,10 @@ def load_data_split_scannet(basedir, scene, style_dir, mode="train", try_load_mi
     pose_files = find_files(os.path.join(scene_dir, "pose"), exts=['*.txt'])
     img_files = find_files(os.path.join(scene_dir, "color"), exts=['*.png', '*.jpg'])
 
+    if mode == "test":
+        pose_files = [p for p in pose_files if "50" in p]
+        img_files = [i for i in img_files if "50" in i]
+
     logger.info('raw intrinsics_files: {}'.format(len(intrinsic_file)))
     logger.info('raw pose_files: {}'.format(len(pose_files)))
     logger.info('raw img_files: {}'.format(len(img_files)))
