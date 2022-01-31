@@ -373,7 +373,13 @@ def create_nerf(rank, args):
 
 def ddp_train_nerf(rank, args):
     ###### set up multi-processing
-    setup(rank, args.world_size)
+    port = "480"
+    import random
+    a = str(random.randint(0, 9))
+    b = str(random.randint(0, 9))
+    port += a
+    port += b
+    setup(rank, args.world_size, port)
     ###### set up logger
     logger = logging.getLogger(__package__)
     setup_logger(args, "train")

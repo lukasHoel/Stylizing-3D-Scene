@@ -8,7 +8,7 @@ style_dir = /home/hoellein/datasets/styles/mosaic
 first_stage_weight = ./logs/scene0291_00_first_stage/model_050000.pth
 basedir = ./logs
 config = None
-ckpt_path = ./logs/scene0291_00_second_stage_1style/model_015000.pth
+ckpt_path = ./logs/scene0291_00_second_stage_1style/model_160000.pth
 no_reload = False
 testskip = 1
 
